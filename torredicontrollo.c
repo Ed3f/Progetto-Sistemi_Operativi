@@ -21,6 +21,7 @@ void torredicontrollo(){
     stdati.s[0] = '\0';
     int i = 0;
     int j = 0; 
+    int u = 0; 
     while (strcmp(stdati.s, "aerei terminati")){ 
         sem_wait(sem);
         if (iReadCount = read(fd, &stdati, sizeof(stdati)) > 0 ){
@@ -35,6 +36,7 @@ void torredicontrollo(){
                 }
                 // ciclo nel quale si attende la comunicazione del decollo del aereo per la liberazione della pista che ha occupato 
                     while (p1 == false && p2 == false  ){ 
+                        u++;
                         int fs = open(COMUNICAZIONE_DECOLLO, O_RDONLY);
                         read(fs, &stdati,sizeof(stdati));
                         strcmp(stdati.s2,"aereo decollato");
@@ -43,7 +45,6 @@ void torredicontrollo(){
                         sprintf(si,"%02d:%02d:%02d", pTm->tm_hour, pTm->tm_min, pTm->tm_sec);
                         printf("%s",si);
                         printf("\e[0;31m %s %d\e[0m\n",stdati.s2, stdati.n_a);
-                        sem_post(sem);
                             if (aereo_pista_1 ==  stdati.nome_aereo_decollo){
                                 p1 = true; 
                                 break;
@@ -70,16 +71,16 @@ void torredicontrollo(){
                         j++;
                         kill(cod2,SIGUSR1); 
                     }
-                    if (j == 10){ // comunicazione del decollo del ultimo aereo 
+                    while ( u < 10 && u >=8){ // comunicazione del decollo del ultimo aereo 
                         int fs = open(COMUNICAZIONE_DECOLLO, O_RDONLY);
                         read(fs, &stdati, sizeof(stdati));
-                        if (strcmp (stdati.s2,"aereo decollato") == 0){
-                             time (&timet);
+                        strcmp (stdati.s2,"aereo decollato");
+                            time (&timet);
                             pTm = localtime(&timet);
                             sprintf(si,"%02d:%02d:%02d", pTm->tm_hour, pTm->tm_min, pTm->tm_sec);
                             printf("%s",si);
                             printf("\e[0;31m %s %d\e[0m\n",stdati.s2, stdati.n_a);
-                        }
+                             u++;
                     }
             }
         }
